@@ -1,4 +1,4 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import zlib from 'zlib';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import NewsArticles from '@/data/news.json';
 
@@ -30,5 +30,11 @@ export default function handler(
 	req: NextApiRequest,
 	res: NextApiResponse<NewsAPIData>
 ) {
-	res.status(200).json(NewsArticles);
+	const jsonData = JSON.stringify(NewsArticles);
+	const gzippedData = zlib.gzipSync(jsonData);
+
+	res.setHeader('Content-Type', 'application/json');
+	res.setHeader('Content-Encoding', 'gzip');
+	res.setHeader('Cache-Control', 'max-age=60, s-maxage=86400'); // cache the response for 1 minute (browser) and 1 day (CDN)
+	res.status(200).end(gzippedData);
 }

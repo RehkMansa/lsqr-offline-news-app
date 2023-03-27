@@ -1,8 +1,36 @@
 import Head from 'next/head';
 import { NewsAPIData } from './api/news';
-import { Star } from '@/components/Icons';
+import { MagnifyingGlass, Star } from '@/components/Icons';
+import { useState } from 'react';
+import useInfiniteScroll from '@/components/hooks/useInfiniteScroll';
+import { GetServerSideProps } from 'next';
+
+export const createSubArrays = <T,>(items: T[], itemsPerSubarray: number) => {
+	const subArrays = [];
+	for (let i = 0; i < items.length; i += itemsPerSubarray) {
+		subArrays.push(items.slice(i, i + itemsPerSubarray));
+	}
+	return subArrays;
+};
+
+const ITEMS_PER_PAGE = 24;
 
 export default function Home({ news }: NewsAPIData) {
+	const [itemsToShow, setItemsToShow] = useState(24);
+	const [searchParam, setSearchParam] = useState('');
+
+	const handlePagination = () => {
+		if (itemsToShow < news.length) {
+			setItemsToShow((prev) => prev + ITEMS_PER_PAGE);
+		}
+	};
+
+	const loadMoreRef = useInfiniteScroll({ callback: handlePagination });
+
+	const handleSubmit = (e: React.SyntheticEvent) => {
+		e.preventDefault();
+	};
+
 	return (
 		<>
 			<Head>
@@ -15,29 +43,51 @@ export default function Home({ news }: NewsAPIData) {
 					name="viewport"
 					content="width=device-width, initial-scale=1"
 				/>
-				<link rel="icon" href="/favicon.ico" />
 			</Head>
-			<section className="max-w-xl mx-auto px-2 py-8  space-y-6">
-				<div>
-					<h1 className="text-3xl font-extrabold">OnlyFakenews</h1>
-					<p className="text-sm my-1 ml-2">
-						The{' '}
-						<span className="text-white bg-black/50 rounded px-0.5">
-							news app
-						</span>{' '}
-						for dummies
-					</p>
-				</div>{' '}
-				<form className="grid">
-					<input
-						type="text"
-						placeholder="search news article"
-						className="border px-5 py-2 rounded"
-					/>
-				</form>
-				<ul role="list" className="grid gap-4 odd">
+			<header className="sticky top-0 px-5 bg-black text-white py-6 scroll-mb-6">
+				<nav className="flex flex-col items-center sm:flex-row gap-4 sm:justify-between mx-auto container">
+					<div className="sm:flex-[0.2]">
+						<h1 className="text-3xl font-extrabold">
+							OnlyFakenews
+						</h1>
+						<p className="text-sm my-1 ml-2">
+							The{' '}
+							<span className="text-white bg-white/50 rounded px-0.5">
+								news app
+							</span>{' '}
+							for dummies
+						</p>
+					</div>
+					<form
+						onClick={handleSubmit}
+						className="flex items-center w-full text-black sm:flex-1"
+					>
+						<div className="sm:max-w-sm md:max-w-sm xl:max-w-xl  ml-auto w-full flex items-center">
+							<input
+								type="text"
+								placeholder="Search news article"
+								className="border px-5 py-2 rounded w-full"
+								value={searchParam}
+								onChange={(e) => setSearchParam(e.target.value)}
+							/>
+							<button
+								aria-label="search"
+								type="submit"
+								className="rounded bg-black/80 -ml-10 text-white w-[42px] h-[42px] flex items-center justify-center"
+							>
+								<MagnifyingGlass />
+							</button>
+						</div>
+					</form>
+				</nav>
+			</header>
+			<section className="container mx-auto px-2 py-10  space-y-6 xl:px-[5%]">
+				<ul
+					role="list"
+					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-4 odd"
+				>
 					{news
-						.slice(0, 10)
+						.slice(0, itemsToShow)
 						.map(({ title, author, rating, excerpt }) => (
 							<li
 								className="px-3 py-4 space-y-4 border-b last:border-0 gap-4"
@@ -64,12 +114,19 @@ export default function Home({ news }: NewsAPIData) {
 							</li>
 						))}
 				</ul>
+				{itemsToShow < news.length && (
+					<div className="flex max-w-lg w-fit pt-5 gap-6 mx-auto">
+						<button type="button" ref={loadMoreRef}>
+							Load More
+						</button>
+					</div>
+				)}
 			</section>
 		</>
 	);
 }
 
-export async function getServerSideProps() {
+export const getStaticProps: GetServerSideProps<NewsAPIData> = async () => {
 	const url = 'https://onlyfakenews.vercel.app/api/news';
 
 	const res = await fetch(url);
@@ -78,4 +135,4 @@ export async function getServerSideProps() {
 	return {
 		props: data,
 	};
-}
+};
