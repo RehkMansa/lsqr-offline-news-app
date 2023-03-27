@@ -4,8 +4,8 @@ import Link from 'next/link';
 
 type Props = {
 	onSubmit: (_event: FormEvent<HTMLFormElement>) => void;
-	searchValue: string;
-	onChange: (_event: ChangeEvent<HTMLInputElement>) => void;
+	searchValue?: string;
+	onChange?: (_event: ChangeEvent<HTMLInputElement>) => void;
 	inputName?: string;
 };
 
