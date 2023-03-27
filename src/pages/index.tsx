@@ -33,8 +33,8 @@ export default function Home() {
 
 	const handleSubmit = (e: React.SyntheticEvent) => {
 		e.preventDefault();
-
-		router.push(`/search?q=${encodeURIComponent(searchParam)}`);
+		localStorage.setItem('searchParam', searchParam);
+		router.push(`/search?type=title`);
 	};
 
 	return (

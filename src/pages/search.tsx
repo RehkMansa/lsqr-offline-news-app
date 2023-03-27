@@ -1,12 +1,11 @@
 import Header from '@/components/Header';
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import NewsResponse from '@/data/news.json';
 import BlogListItem from '@/components/BlogListItem';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import { news } from '@/data/news.json';
 
-export const getServerSideProps: GetServerSideProps<{
+/* export const getServerSideProps: GetServerSideProps<{
 	data: typeof NewsResponse['news'];
 	queryParam: string;
 }> = async ({ query }) => {
@@ -26,47 +25,80 @@ export const getServerSideProps: GetServerSideProps<{
 };
 
 type Props = InferGetServerSidePropsType<typeof getServerSideProps>;
-
-const Search = ({ queryParam, data }: Props) => {
-	//
-	const [searchParam, setSearchParam] = useState(queryParam);
+ */
+const Search = () => {
 	const router = useRouter();
 
-	const handleSubmit = (e: React.SyntheticEvent) => {
+	const [searchParam, setSearchParam] = useState('');
+
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		router.push(`/search?q=${encodeURIComponent(searchParam)}`);
+		if (
+			'searchParam' in e.currentTarget.elements &&
+			e.currentTarget.elements.searchParam instanceof HTMLInputElement
+		) {
+			const searchTerm =
+				e.currentTarget.elements.searchParam.value.trim();
+
+			setSearchParam(searchTerm);
+			localStorage.setItem('searchParam', searchTerm);
+		}
 	};
+
+	const getSearchParam = () => {
+		if ('type' in router.query) {
+			const str = localStorage.getItem('searchParam');
+			console.log(str);
+			setSearchParam(str ?? '');
+
+			localStorage.removeItem('searchParam');
+		}
+	};
+
+	const filteredNews = news.filter(({ title }) =>
+		title.toLowerCase().includes(searchParam.toLowerCase() ?? '')
+	);
+
+	useEffect(() => {
+		getSearchParam();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<section>
 			<Head>
-				<title>Search - {queryParam}</title>
+				<title>Search - {searchParam}</title>
 				<meta name="description" content="Fake news Fake you" />
 				<meta
 					name="viewport"
 					content="width=device-width, initial-scale=1"
 				/>
 			</Head>
-			<Header
-				onChange={(e) => setSearchParam(e.target.value)}
-				onSubmit={handleSubmit}
-				searchValue={searchParam}
-			/>
-			<section className="container mx-auto px-2 py-10  space-y-8 xl:px-[5%]">
-				<h2 className=" text-xl sm:text-2xl font-bold text-center leading-normal">
-					You are viewing {data.length} results for{' '}
-					<span className="text-white bg-black/50 rounded px-1">
-						{queryParam}
-					</span>
-				</h2>
+			<Header onSubmit={handleSubmit} />
+			<section className="container mx-auto px-2 py-14  space-y-8 xl:px-[5%]">
+				{searchParam && (
+					<h2 className=" text-xl sm:text-2xl font-bold text-center leading-normal">
+						You are viewing {filteredNews.length} results for{' '}
+						<span className="text-white bg-black/50 rounded px-1">
+							{searchParam}
+						</span>
+					</h2>
+				)}
 				<ul
 					role="list"
 					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 odd"
 				>
-					{data.map((newsContent) => (
-						<BlogListItem key={newsContent.id} {...newsContent} />
-					))}
+					{filteredNews.length > 0 ? (
+						filteredNews.map((newsContent) => (
+							<BlogListItem
+								key={newsContent.id}
+								{...newsContent}
+							/>
+						))
+					) : (
+						<div>No search Result found</div>
+					)}
 				</ul>
 			</section>
 		</section>
