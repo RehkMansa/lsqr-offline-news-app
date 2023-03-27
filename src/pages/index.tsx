@@ -1,6 +1,10 @@
 import Head from 'next/head';
+import { NewsAPIData } from './api/news';
+import { Star } from '@/components/Icons';
 
-export default function Home() {
+const serverURL = process.env.APP_URL;
+
+export default function Home({ news }: NewsAPIData) {
 	return (
 		<>
 			<Head>
@@ -34,32 +38,46 @@ export default function Home() {
 					/>
 				</form>
 				<ul role="list" className="grid gap-4 odd">
-					{[0, 1, 2, 3, 5, 6].map((n) => (
-						<li
-							className="px-3 py-4 space-y-4 border-b last:border-0"
-							key={n}
-						>
-							<h2 className="font-bold text-xl">
-								Lorem ipsum dolor sit.
-							</h2>
-							<p>
-								Lorem ipsum dolor, sit amet consectetur
-								adipisicing elit. Facere, sequi aperiam debitis,
-								ab error in voluptas vel tenetur dolor et
-								accusantium officia quae? Voluptates eveniet
-								sequi cupiditate eius consequuntur saepe.
-							</p>
-							<div>
-								<p>rehkmansa</p>
-								<div>
-									<p></p>
-									<p></p>
+					{news
+						.slice(0, 10)
+						.map(({ title, author, rating, excerpt }) => (
+							<li
+								className="px-3 py-4 space-y-4 border-b last:border-0 gap-4"
+								key={title}
+							>
+								<div className="flex justify-between items-start">
+									<h2 className="font-bold text-xl">
+										{title}
+									</h2>
+									<p className="flex items-center gap-2">
+										<Star
+											fontSize={20}
+											className="w-5 h-5"
+										/>
+										{rating.rating}
+									</p>
 								</div>
-							</div>
-						</li>
-					))}
+								<p>{excerpt}</p>
+								<div>
+									<p className="bg-black text-white rounded px-3 w-fit text-sm">
+										{author.name}
+									</p>
+								</div>
+							</li>
+						))}
 				</ul>
 			</section>
 		</>
 	);
+}
+
+export async function getServerSideProps() {
+	const url = serverURL + '/api/news';
+
+	const res = await fetch(url);
+	const data = await res.json();
+
+	return {
+		props: data,
+	};
 }
