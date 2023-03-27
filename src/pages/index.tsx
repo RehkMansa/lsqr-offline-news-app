@@ -2,8 +2,6 @@ import Head from 'next/head';
 import { NewsAPIData } from './api/news';
 import { Star } from '@/components/Icons';
 
-const serverURL = process.env.APP_URL;
-
 export default function Home({ news }: NewsAPIData) {
 	return (
 		<>
@@ -72,7 +70,7 @@ export default function Home({ news }: NewsAPIData) {
 }
 
 export async function getServerSideProps() {
-	const url = serverURL + '/api/news';
+	const url = 'https://onlyfakenews.vercel.app/api/news';
 
 	const res = await fetch(url);
 	const data = await res.json();
