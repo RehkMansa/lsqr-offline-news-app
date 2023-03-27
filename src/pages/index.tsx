@@ -1,10 +1,8 @@
 import Head from 'next/head';
-import { NewsAPIData } from './api/news';
 import { MagnifyingGlass, Star } from '@/components/Icons';
 import { useState } from 'react';
 import useInfiniteScroll from '@/components/hooks/useInfiniteScroll';
-import { GetServerSideProps } from 'next';
-
+import { news } from '@/data/news.json';
 export const createSubArrays = <T,>(items: T[], itemsPerSubarray: number) => {
 	const subArrays = [];
 	for (let i = 0; i < items.length; i += itemsPerSubarray) {
@@ -15,7 +13,7 @@ export const createSubArrays = <T,>(items: T[], itemsPerSubarray: number) => {
 
 const ITEMS_PER_PAGE = 24;
 
-export default function Home({ news }: NewsAPIData) {
+export default function Home() {
 	const [itemsToShow, setItemsToShow] = useState(24);
 	const [searchParam, setSearchParam] = useState('');
 
@@ -126,7 +124,7 @@ export default function Home({ news }: NewsAPIData) {
 	);
 }
 
-export const getStaticProps: GetServerSideProps<NewsAPIData> = async () => {
+/* export const getStaticProps: GetServerSideProps<NewsAPIData> = async () => {
 	const url = 'https://onlyfakenews.vercel.app/api/news';
 
 	const res = await fetch(url);
@@ -136,3 +134,4 @@ export const getStaticProps: GetServerSideProps<NewsAPIData> = async () => {
 		props: data,
 	};
 };
+ */
