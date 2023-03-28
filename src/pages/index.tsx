@@ -3,7 +3,7 @@ import { useState } from 'react';
 import useInfiniteScroll from '@/components/hooks/useInfiniteScroll';
 import { news } from '@/data/news.json';
 import Header from '@/components/Header';
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router';
 import BlogListItem from '@/components/BlogListItem';
 
 export const createSubArrays = <T,>(items: T[], itemsPerSubarray: number) => {
@@ -21,7 +21,7 @@ const ITEMS_PER_PAGE = 24;
 export default function Home() {
 	const [itemsToShow, setItemsToShow] = useState(24);
 	const [searchParam, setSearchParam] = useState('');
-	const router = useRouter();
+	// const router = useRouter();
 
 	const handlePagination = () => {
 		if (itemsToShow < news.length) {
@@ -34,7 +34,7 @@ export default function Home() {
 	const handleSubmit = (e: React.SyntheticEvent) => {
 		e.preventDefault();
 		localStorage.setItem('searchParam', searchParam);
-		router.push(`/search?type=title`);
+		window.location.assign(`/search?type=title`);
 	};
 
 	return (
