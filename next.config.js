@@ -9,6 +9,6 @@ const nextConfig = {
 };
 
 module.exports = withPWA({
-	nextConfig,
+	...nextConfig,
 	cacheOnFrontEndNav: true,
 });
