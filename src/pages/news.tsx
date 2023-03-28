@@ -2,8 +2,9 @@ import Header from '@/components/Header';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import NewsArticle from '@/data/news.json';
-import { Star, ArrowUpOutlined } from '@/components/Icons';
+import { Star, ArrowUpOutlined, LongArrowLeft } from '@/components/Icons';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 const SinglePostsPage = () => {
 	const router = useRouter();
@@ -48,12 +49,21 @@ const SinglePostsPage = () => {
 	return (
 		<div className="font-sans">
 			<Head>
-				<title>Single post</title>
+				<title key="post-title">Single post</title>
 			</Head>
 			<Header onSubmit={handleSearch} />
-			<section className="container px-5 py-8 mx-auto space-y-8">
+			<section className="container px-5 py-10 pb-16 mx-auto space-y-8">
+				<Link href="/" className="flex items-center gap-2 w-fit">
+					<LongArrowLeft />
+					Go Home
+				</Link>
 				{currentArticle && (
 					<>
+						<Head>
+							<title key="post-title">
+								{currentArticle.title}
+							</title>
+						</Head>
 						<div className="flex justify-between gap-4">
 							<div>
 								<h2 className="text-2xl sm:text-3xl font-bold">
