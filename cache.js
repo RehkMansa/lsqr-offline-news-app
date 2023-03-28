@@ -165,9 +165,9 @@ module.exports = [
 			}
 			return false;
 		},
-		handler: 'StaleWhileRevalidate',
+		handler: 'CacheFirst',
 		options: {
-			cacheName: 'others',
+			cacheName: 'other-pages',
 			expiration: {
 				maxEntries: 32,
 				maxAgeSeconds: 24 * 60 * 60, // 24 hours
